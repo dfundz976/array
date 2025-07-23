@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Table generator</title>
+    <link rel="stylesheet" href="Timetable.css">
+</head>
+<body>
+    <div id="form">
+       <h1>Time Table Generator</h1> 
+       <label for="starting">Starting From:</label>
+       <input type="number" id="start1" placeholder="Enter your first number">
+       <br>
+       <br>
+       <label for="snding">Ends At:</label>
+       <input type="number" id="end2" placeholder="Enter your second number">
+       <br>
+       <br>
+       <button onclick="timeTable()">Calculate</button>
+       <div id="result"></div>
+    </div >
+</body>
+<script>
+    function timeTable() {
+    let start1 = Number(document.getElementById('start1').value);
+    let end2 = Number(document.getElementById('end2').value);
+    let result = document.getElementById('result');
+    result.innerHTML = '';
+    if ((!start1) || (!end2)) {
+       result.innerHTML = `<b>Please enter number...🔢</b>`; 
+       result.style.color = "blue";
+       return;
+    }
+    if (start1 > end2) {
+        result.innerHTML = `<b>Please the starting number should be less than the ending number..<</b>` ;
+        result.style.color = "red";
+        return;
+    }
+    result.style.color = "black"
+    for (let i = start1; i <= end2; i++) {
+        let number = `<h1>The table for ${i}</h1><ul>`;
+        for (let a = 1; a <= 12; a++) {
+            number += `<li>${i} * ${a} = ${i * a}</li>`;
+        }
+        number += '</ul>';
+        result.innerHTML += number 
+    }
+    }
+
+</script>
+</html>
