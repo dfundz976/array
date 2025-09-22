@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Products Carousel & Grid</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .carousel-container {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      margin-bottom: 40px;
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    .carousel-item {
+      min-width: 300px; /* adjust width as needed */
+      margin-right: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 10px;
+      background: #fff;
+      border-radius: 5px;
+    }
+    .carousel-item img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .carousel-buttons {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+    }
+    .carousel-button {
+      background: rgba(0,0,0,0.5);
+      color: #fff;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 10px;
+      background: #fff;
+      border-radius: 5px;
+      display: flex;
+      flex-direction: column;
+    }
+    .product-card img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 5px;
+    }
+    .product-card .title {
+      font-size: 16px;
+      margin: 10px 0 5px 0;
+      flex: 1;
+    }
+    .product-card .price {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .button-group {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 8px 12px;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .btn-see-more {
+      background-color: brown;
+      color: #fff;
+    }
+    .btn-add-cart {
+      background-color: black;
+      color: #fff;
+    }
+    
+    .product-description {
+      display: none;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product</h1>
+
+  <div class="carousel-container" id="carousel">
+    <div class="carousel-track" id="carousel-track">
+      
+    </div>
+    <div class="carousel-buttons">
+      <button class="carousel-button" id="prev-btn">&lt;</button>
+      <button class="carousel-button" id="next-btn">&gt;</button>
+    </div>
+  </div>
+
+  <div class="products-grid" id="products-grid">
+    
+  </div>
+
+  <script>
+    const apiUrl = 'https://dummyjson.com/products?limit=30'; // get 30 products
+    let products = [];
+
+    async function fetchProducts() {
+      try {
+        const res = await fetch(apiUrl);
+        const data = await res.json();
+        products = data.products;
+        displayCarousel();
+        displayGrid();
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      }
+    }
+
+    function displayCarousel() {
+      const track = document.getElementById('carousel-track');
+      track.innerHTML = '';
+
+      products.forEach((product, idx) => {
+        const item = document.createElement('div');
+        item.className = 'carousel-item';
+        item.innerHTML = `
+          <img src="${product.thumbnail}" alt="${product.title}">
+          <h3>${product.title}</h3>
+          <p class="price">$${product.price}</p>
+          <div class="button-group">
+            <button class="btn btn-see-more" data-idx="${idx}">See More</button>
+            <button class="btn btn-add-cart" data-idx="${idx}">Add to Cart</button>
+          </div>
+          <p class="product-description" id="desc-${idx}">${product.description}</p>
+        `;
+        track.appendChild(item);
+      });
+
+      setupCarouselButtons();
+      setupProductButtons();
+    }
+
+    function displayGrid() {
+      const grid = document.getElementById('products-grid');
+      grid.innerHTML = '';
+
+      products.forEach((product, idx) => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.innerHTML = `
+          <img src="${product.thumbnail}" alt="${product.title}">
+          <div class="title">${product.title}</div>
+          <div class="price">$${product.price}</div>
+          <div class="button-group">
+            <button class="btn btn-see-more" data-idx="${idx}">See More</button>
+            <button class="btn btn-add-cart" data-idx="${idx}">Add to Cart</button>
+          </div>
+          <p class="product-description" id="grid-desc-${idx}">${product.description}</p>
+        `;
+        grid.appendChild(card);
+      });
+
+      setupProductButtons();
+    }
+
+    function setupProductButtons() {
+      // See More toggles description
+      document.querySelectorAll('.btn-see-more').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = btn.getAttribute('data-idx');
+          const desc = document.getElementById(`desc-${idx}`) || document.getElementById(`grid-desc-${idx}`);
+          if (!desc) return;
+          if (desc.style.display === 'block') {
+            desc.style.display = 'none';
+            btn.textContent = 'See More';
+          } else {
+            desc.style.display = 'block';
+            btn.textContent = 'See Less';
+          }
+        });
+      });
+
+      // Add to Cart click
+      document.querySelectorAll('.btn-add-cart').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = btn.getAttribute('data-idx');
+          const product = products[idx];
+          // You can do something with it (e.g. store in localStorage or show message)
+          alert(`Added to cart: ${product.title}`);
+        });
+      });
+    }
+
+    function setupCarouselButtons() {
+      const track = document.getElementById('carousel-track');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      let currentSlide = 0;
+
+      const itemWidth = 320; 
+
+      prevBtn.addEventListener('click', () => {
+        if (currentSlide > 0) {
+          currentSlide--;
+          track.style.transform = `translateX(-${currentSlide * itemWidth}px)`;
+        }
+      });
+      nextBtn.addEventListener('click', () => {
+        
+        const maxSlide = products.length - Math.floor(document.querySelector('.carousel-container').clientWidth / itemWidth);
+        if (currentSlide < maxSlide) {
+          currentSlide++;
+          track.style.transform = `translateX(-${currentSlide * itemWidth}px)`;
+        }
+      });
+    }
+
+
+    fetchProducts();
+  </script>
+</body>
+</html>
